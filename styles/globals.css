@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #f9fafb; /* LeetCode-style light gray background */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Dark mode styles */
+.dark body {
+  background: #020617; /* slate-950 */
+  color: #e5e7eb;      /* gray-200 */
+}
+
+/* Ensure inputs have visible text - override Tailwind defaults */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+textarea,
+select {
+  color: #111827 !important; /* Dark text on light backgrounds */
+  background-color: #ffffff !important;
+}
+
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="search"],
+.dark textarea,
+.dark select {
+  color: #e5e5e5 !important; /* Light text on dark backgrounds */
+  background-color: #2d2d2d !important;
+}
+
+/* Placeholder text */
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dark mode palette overrides for common Tailwind utility classes    */
+/* This ensures nothing "vanishes" due to dark background + dark text */
+/* ------------------------------------------------------------------ */
+
+/* Text colors */
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: #f9fafb !important; /* near-white */
+}
+
+.dark .text-gray-700 {
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+.dark .text-gray-600 {
+  color: #d1d5db !important; /* gray-300 */
+}
+
+.dark .text-gray-500 {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+.dark .text-purple-600 {
+  color: #a855f7 !important; /* purple-500 */
+}
+
+.dark .text-teal-600 {
+  color: #14b8a6 !important; /* teal-500 */
+}
+
+/* Backgrounds */
+.dark .bg-white {
+  background-color: #020617 !important; /* slate-950 */
+}
+
+.dark .bg-gray-50 {
+  background-color: #020617 !important;
+}
+
+.dark .bg-purple-50 {
+  background-color: #312e81 !important; /* indigo-900-ish */
+}
+
+.dark .bg-teal-50 {
+  background-color: #064e3b !important; /* emerald-900-ish */
+}
+
+/* Borders */
+.dark .border-gray-200 {
+  border-color: #1f2937 !important; /* gray-800 */
+}
+
+.dark .border-gray-300 {
+  border-color: #374151 !important; /* gray-700 */
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}

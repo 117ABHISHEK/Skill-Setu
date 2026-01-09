@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seed Data - Skill-Setu</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #4f46e5;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <h1>🌱 Seed Database</h1>
+    <p>Click the button below to populate the database with test data.</p>
+    <button onclick="seedData()">Seed Database</button>
+    <div id="result"></div>
+
+    <script>
+        async function seedData() {
+            const button = document.querySelector('button');
+            const result = document.getElementById('result');
+            
+            button.disabled = true;
+            button.textContent = 'Seeding...';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/api/dev/seed', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <h3>✅ Success!</h3>
+                        <p><strong>Created:</strong></p>
+                        <ul>
+                            <li>Users: ${data.data.users}</li>
+                            <li>Courses: ${data.data.courses}</li>
+                            <li>Matches: ${data.data.matches}</li>
+                        </ul>
+                        <p><strong>Test Credentials:</strong></p>
+                        <pre>${JSON.stringify(data.credentials, null, 2)}</pre>
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `<h3>❌ Error</h3><p>${data.error}</p>`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `<h3>❌ Error</h3><p>${error.message}</p>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Seed Database';
+            }
+        }
+    </script>
+</body>
+</html>
