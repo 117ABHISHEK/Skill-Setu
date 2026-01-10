@@ -89,15 +89,28 @@ export default function LiveSession() {
   useEffect(() => {
     let pollInterval: NodeJS.Timeout | null = null;
 
-    if (session && session.status === 'created') {
+    if (session && (session.status === 'created' || session.status === 'live')) {
       pollInterval = setInterval(() => {
         fetchSession();
-      }, 3000); // Poll every 3 seconds until live
+      }, 3000); // Poll every 3 seconds until ended
     }
 
     return () => {
       if (pollInterval) clearInterval(pollInterval);
     };
+  }, [session?.status]);
+
+  // Handle redirect when session ends elsewhere
+  useEffect(() => {
+    if (session && (session.status === 'completed' || session.status === 'cancelled')) {
+      if (!hasJoinedRef.current) {
+         // If we haven't joined yet, just go back
+         router.push('/dashboard');
+      } else {
+         // If we were in the call, clean up first
+         handleEndSession(true);
+      }
+    }
   }, [session?.status]);
 
   // Auto-join when session goes live
@@ -234,7 +247,7 @@ export default function LiveSession() {
           
           // If we were the last ones or no one else was here, end session
           if (!otherParticipantPresentRef.current) {
-            handleEndSession();
+            handleEndSession(true);
           }
         })
         .on('active-speaker-change', (event) => {
@@ -264,8 +277,9 @@ export default function LiveSession() {
           speakingStartTimeRef.current = activeSpeakerIdRef.current ? now : null;
         })
         .on('error', (error) => {
-          console.error('Daily.co error:', error);
-          toast.error('Video call error occurred');
+          console.error('Daily.co detailed error:', error);
+          const errorMsg = error?.errorMsg || 'Video call error occurred';
+          toast.error(errorMsg);
         });
 
       await iframe.join({ token: dailyToken || undefined });
@@ -462,14 +476,16 @@ export default function LiveSession() {
     }
   };
 
-  const handleEndSession = async () => {
-    if (!confirm('Are you sure you want to end the session?')) {
+  const handleEndSession = async (isAutomatic = false) => {
+    if (!isAutomatic && !confirm('Are you sure you want to end the session?')) {
       return;
     }
 
     try {
       await api.post(`/session/${sessionId}/end`);
-      toast.success('Session ended successfully');
+      if (!isAutomatic) {
+        toast.success('Session ended successfully');
+      }
       
       if (callFrame) {
         callFrame.leave();
@@ -477,6 +493,12 @@ export default function LiveSession() {
       
       router.push('/dashboard');
     } catch (error: any) {
+      if (error.response?.data?.error === 'Session already ended') {
+        // If already ended, just clean up and go to dashboard
+        if (callFrame) callFrame.leave();
+        router.push('/dashboard');
+        return;
+      }
       toast.error(error.response?.data?.error || 'Failed to end session');
     }
   };
@@ -672,7 +694,7 @@ export default function LiveSession() {
                     </button>
                     <div className="w-px h-8 bg-gray-700 mx-2"></div>
                     <button 
-                      onClick={handleEndSession}
+                      onClick={() => handleEndSession()}
                       className="px-6 h-12 bg-red-600 text-white rounded-2xl font-bold hover:bg-red-700 flex items-center gap-2 transition-all active:scale-95"
                     >
                       <span className="text-xl">📞</span> End Call

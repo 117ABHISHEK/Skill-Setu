@@ -36,13 +36,12 @@ export async function createDailyRoom(
       },
       body: JSON.stringify({
         name: `skill-setu-${sessionId}`,
-        privacy: 'private',
+        privacy: 'public', // Using public to test if private rooms are restricted
         properties: {
           exp: expiresAt,
           max_participants: 2,
           enable_chat: true,
           enable_screenshare: true,
-          enable_recording: false, // No video storage
         },
       }),
     });
@@ -87,8 +86,8 @@ export async function getDailyRoomToken(roomName: string, userId: string, isOwne
           room_name: roomName,
           user_id: userId,
           is_owner: isOwner,
+          exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiry
         },
-        exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour expiry
       }),
     });
 

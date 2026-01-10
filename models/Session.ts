@@ -169,7 +169,6 @@ const SessionSchema = new Schema<ISession>(
 );
 
 // Indexes
-SessionSchema.index({ sessionId: 1 });
 SessionSchema.index({ teacher: 1, status: 1 });
 SessionSchema.index({ learner: 1, status: 1 });
 SessionSchema.index({ createdAt: -1 });

@@ -114,8 +114,12 @@ Return ONLY a valid JSON object with this exact structure:
 
     const analysis = JSON.parse(response) as AIAnalysisResult;
     return analysis;
-  } catch (error) {
-    console.error('AI Analysis Error:', error);
+  } catch (error: any) {
+    if (error?.status === 401) {
+      console.error('AI Analysis Error: Invalid or missing OPENAI_API_KEY. Please check your .env file.');
+    } else {
+      console.error('AI Analysis Error:', error.message || error);
+    }
     // Fallback scores in case of AI failure
     return {
       engagement_score: 50,
@@ -168,8 +172,12 @@ Keep it concise and encouraging (2-3 sentences per point).`;
     });
 
     return completion.choices[0]?.message?.content || 'Keep learning and improving!';
-  } catch (error) {
-    console.error('AI Advice Generation Error:', error);
+  } catch (error: any) {
+    if (error?.status === 401) {
+       console.error('AI Advice Generation Error: Invalid or missing OPENAI_API_KEY.');
+    } else {
+       console.error('AI Advice Generation Error:', error.message || error);
+    }
     return 'Continue practicing your skills and explore new learning opportunities!';
   }
 }
@@ -189,8 +197,12 @@ export async function moderateContent(text: string): Promise<{ safe: boolean; re
     }
 
     return { safe: true };
-  } catch (error) {
-    console.error('Content Moderation Error:', error);
+  } catch (error: any) {
+    if (error?.status === 401) {
+      console.error('Content Moderation Error: Invalid or missing OPENAI_API_KEY.');
+    } else {
+      console.error('Content Moderation Error:', error.message || error);
+    }
     // If moderation fails, err on the side of caution
     return { safe: false, reason: 'Content moderation unavailable' };
   }

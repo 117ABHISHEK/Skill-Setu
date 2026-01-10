@@ -8,7 +8,7 @@ import { authenticateToken, AuthenticatedRequest, validateInput } from '@/lib/mi
 import { v4 as uuidv4 } from 'uuid';
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
-  authenticateToken(req, res, async () => {
+  return await authenticateToken(req, res, async () => {
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -41,7 +41,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         teacher: match.teacher,
         learner: match.learner,
         skill: skill,
-        status: { $in: ['scheduled', 'active'] },
+        status: { $in: ['scheduled', 'live'] },
       });
 
       if (existingSession) {

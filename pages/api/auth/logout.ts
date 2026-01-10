@@ -9,7 +9,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  authenticateToken(req, res, async () => {
+  return await authenticateToken(req, res, async () => {
     try {
       await dbConnect();
 

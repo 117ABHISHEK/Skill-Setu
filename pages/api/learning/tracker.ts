@@ -7,7 +7,7 @@ import { authenticateToken, AuthenticatedRequest } from '@/lib/middleware';
 import { generatePersonalizedAdvice } from '@/lib/ai';
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
-  authenticateToken(req, res, async () => {
+  return await authenticateToken(req, res, async () => {
     if (req.method !== 'GET') {
       return res.status(405).json({ error: 'Method not allowed' });
     }

@@ -4,7 +4,7 @@ import Session from '@/models/Session';
 import { authenticateToken, AuthenticatedRequest, validateInput } from '@/lib/middleware';
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
-  authenticateToken(req, res, async () => {
+  return await authenticateToken(req, res, async () => {
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -32,7 +32,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       }
 
       // Start session
-      session.status = 'active';
+      session.status = 'live';
       session.startTime = new Date();
       await session.save();
 

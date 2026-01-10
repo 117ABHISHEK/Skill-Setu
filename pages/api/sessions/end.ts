@@ -5,7 +5,7 @@ import User from '@/models/User';
 import { authenticateToken, AuthenticatedRequest, validateInput } from '@/lib/middleware';
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
-  authenticateToken(req, res, async () => {
+  return await authenticateToken(req, res, async () => {
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' });
     }
@@ -24,8 +24,8 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         return res.status(404).json({ error: 'Session not found' });
       }
 
-      if (session.status !== 'active') {
-        return res.status(400).json({ error: 'Session is not active' });
+      if (session.status !== 'live') {
+        return res.status(400).json({ error: 'Session is not live' });
       }
 
       // Calculate final scores from snapshots
@@ -47,10 +47,10 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       }
 
       session.endTime = new Date();
-      session.status = session.fraud_flagged ? 'under_review' : 'ended';
+      session.status = session.fraud_flagged ? 'under_review' : 'completed';
 
       // Transfer tokens if session is valid (not flagged)
-      if (!session.fraud_flagged && session.status === 'ended') {
+      if (!session.fraud_flagged && session.status === 'completed') {
         const tokenAmount = 10; // Base tokens per session
         const teacher = session.teacher as any;
         const learner = session.learner as any;

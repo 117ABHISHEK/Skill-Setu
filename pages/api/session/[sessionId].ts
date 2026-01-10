@@ -4,7 +4,7 @@ import Session from '@/models/Session';
 import { authenticateToken, AuthenticatedRequest } from '@/lib/middleware';
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
-  authenticateToken(req, res, async () => {
+  return await authenticateToken(req, res, async () => {
     try {
       await dbConnect();
       const { sessionId } = req.query;

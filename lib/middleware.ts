@@ -5,10 +5,10 @@ export interface AuthenticatedRequest extends NextApiRequest {
   user?: JWTPayload;
 }
 
-export function authenticateToken(
+export async function authenticateToken(
   req: AuthenticatedRequest,
   res: NextApiResponse,
-  next: () => void
+  next: () => Promise<void> | void
 ) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -20,7 +20,7 @@ export function authenticateToken(
   try {
     const decoded = verifyAccessToken(token);
     req.user = decoded;
-    next();
+    return await next();
   } catch (error) {
     return res.status(403).json({ error: 'Invalid or expired token' });
   }

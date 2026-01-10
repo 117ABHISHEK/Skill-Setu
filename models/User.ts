@@ -89,7 +89,6 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes
-UserSchema.index({ email: 1 });
 UserSchema.index({ 'skills_known.name': 1 });
 UserSchema.index({ 'skills_learning.name': 1 });
 
