@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Match from '@/models/Match';
+import Notification from '@/models/Notification';
 import { authenticateToken, AuthenticatedRequest, validateInput } from '@/lib/middleware';
 
 interface MatchResult {
@@ -51,112 +52,104 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
       const learnerId = req.user?.userId;
 
       if (req.method === 'POST') {
-        // Find matches for a specific skill
-        const validation = validateInput(req, res, ['skill', 'category']);
-        if (validation) return;
-
-        // Sanitize and validate inputs
-        let { skill, category } = req.body;
-        
-        skill = String(skill || '').trim();
-        category = String(category || '').trim();
-        
-        // Validate lengths
-        if (skill.length < 2 || skill.length > 100) {
-          return res.status(400).json({ error: 'Skill name must be between 2 and 100 characters' });
-        }
-        
-        // Validate category is in allowed list
-        const allowedCategories = ['Creative', 'Music', 'Cooking', 'Dance', 'Tech', 'Languages', 'Soft Skills', 'Gaming', 'Practical'];
-        if (!allowedCategories.includes(category)) {
-          return res.status(400).json({ error: 'Invalid skill category' });
-        }
-
         const learner = await User.findById(learnerId);
         if (!learner) {
           return res.status(404).json({ error: 'Learner not found' });
         }
 
-        // Find the skill the learner wants to learn
-        const learningSkill = learner.skills_learning.find(
-          (s: any) => s.name.toLowerCase() === skill.toLowerCase() && s.category === category
-        );
+        let { skill, category } = req.body;
+        let skillsToSearch = [];
 
-        if (!learningSkill) {
-          return res.status(400).json({ error: 'Skill not in your learning list' });
+        if (skill && category) {
+          // Specific search
+          skillsToSearch = [{ name: skill, category }];
+        } else {
+          // Automated recommendations based on all learning skills
+          skillsToSearch = learner.skills_learning.map((s: any) => ({ name: s.name, category: s.category }));
         }
 
-        // Find teachers who can teach this skill
-        const teachers = await User.find({
-          'skills_known': {
-            $elemMatch: {
-              name: { $regex: new RegExp(skill, 'i') },
-              category: category,
+        const allMatches: MatchResult[] = [];
+
+        for (const learningSkill of skillsToSearch) {
+          const { name: skillName, category: skillCategory } = learningSkill;
+          
+          // Find teachers who can teach this skill
+          const teachers = await User.find({
+            'skills_known': {
+              $elemMatch: {
+                name: { $regex: new RegExp(skillName, 'i') },
+                category: skillCategory,
+              },
             },
-          },
-          _id: { $ne: learnerId },
-        });
+            _id: { $ne: learnerId },
+          });
 
-        const matches: MatchResult[] = [];
-
-        for (const teacher of teachers) {
-          const teachingSkill = teacher.skills_known.find(
-            (s: any) => s.name.toLowerCase() === skill.toLowerCase() && s.category === category
-          );
-
-          if (teachingSkill) {
-            const matchScore = calculateMatchScore(
-              learningSkill,
-              teachingSkill,
-              learner.reputation,
-              teacher.reputation
+          for (const teacher of teachers) {
+            const teachingSkill = teacher.skills_known.find(
+              (s: any) => s.name.toLowerCase() === skillName.toLowerCase() && s.category === skillCategory
             );
 
-            // Only include matches with score > 40
-            if (matchScore > 40) {
-              matches.push({
-                matched_user_id: teacher._id.toString(),
-                match_score: matchScore,
-                reason: `Strong match: ${teachingSkill.proficiency} level teacher for ${learningSkill.proficiency} learner. Reputation: ${teacher.reputation}`,
-                user: {
-                  _id: teacher._id,
-                  name: teacher.name,
-                  bio: teacher.bio,
-                  skills_known: teacher.skills_known,
-                  reputation: teacher.reputation,
-                },
-              });
+            if (teachingSkill) {
+              const matchScore = calculateMatchScore(
+                learningSkill,
+                teachingSkill,
+                learner.reputation,
+                teacher.reputation
+              );
+
+              if (matchScore > 40) {
+                // Check if match already exists
+                const existingMatch = await Match.findOne({
+                  $or: [
+                    { learner: learnerId, teacher: teacher._id, skill: skillName },
+                    { learner: teacher._id, teacher: learnerId, skill: skillName }
+                  ]
+                });
+
+                if (!existingMatch && allMatches.length < 20) {
+                   // Create the match record automatically for recommendations
+                   await Match.create({
+                      learner: learnerId,
+                      teacher: teacher._id,
+                      skill: skillName,
+                      skillCategory: skillCategory,
+                      matchScore: matchScore,
+                      reason: `Strong match: ${teachingSkill.proficiency} level teacher for ${learningSkill.proficiency} learner. Reputation: ${teacher.reputation}`,
+                      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                   });
+
+                   // Notify the teacher
+                   await Notification.create({
+                      recipient: teacher._id,
+                      type: 'match_new',
+                      title: 'New Skill Match Suggestion!',
+                      message: `${learner.name} is looking to learn ${skillName}. You've been matched as a potential teacher!`,
+                      link: '/match',
+                   });
+                }
+
+                allMatches.push({
+                  matched_user_id: teacher._id.toString(),
+                  match_score: matchScore,
+                  reason: `Strong match: ${teachingSkill.proficiency} level teacher for ${learningSkill.proficiency} learner. Reputation: ${teacher.reputation}`,
+                  user: {
+                    _id: teacher._id,
+                    name: teacher.name,
+                    bio: teacher.bio,
+                    skills_known: teacher.skills_known,
+                    reputation: teacher.reputation,
+                  },
+                });
+              }
             }
           }
         }
 
-        // Sort by match score
-        matches.sort((a, b) => b.match_score - a.match_score);
+        // Sort by match score and remove duplicates if any
+        const uniqueMatches = Array.from(new Map(allMatches.map(m => [m.matched_user_id + m.user.skills_known[0].name, m])).values());
+        uniqueMatches.sort((a, b) => b.match_score - a.match_score);
 
-        // Create match records
-        for (const match of matches.slice(0, 10)) {
-          // Check if match already exists
-          const existingMatch = await Match.findOne({
-            learner: learnerId,
-            teacher: match.matched_user_id,
-            skill: skill,
-            status: 'pending',
-          });
-
-          if (!existingMatch) {
-            await Match.create({
-              learner: learnerId,
-              teacher: match.matched_user_id,
-              skill: skill,
-              skillCategory: category,
-              matchScore: match.match_score,
-              reason: match.reason,
-              expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-            });
-          }
-        }
-
-        return res.status(200).json({ matches: matches.slice(0, 10) });
+        return res.status(200).json({ matches: uniqueMatches.slice(0, 10) });
       }
 
       if (req.method === 'GET') {

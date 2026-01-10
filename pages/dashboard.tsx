@@ -20,6 +20,7 @@ export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingMatches, setPendingMatches] = useState<any[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -28,8 +29,17 @@ export default function Dashboard() {
       return;
     }
 
-    fetchUser();
+    Promise.all([fetchUser(), fetchPendingMatches()]).finally(() => setLoading(false));
   }, [router]);
+
+  const fetchPendingMatches = async () => {
+    try {
+      const response = await api.get('/skills/match');
+      setPendingMatches(response.data.matches || []);
+    } catch (error) {
+      console.error('Failed to fetch pending matches');
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -118,6 +128,41 @@ export default function Dashboard() {
             <div className="text-3xl font-bold text-teal-600 dark:text-teal-400">{user?.reputation || 0}</div>
           </div>
         </div>
+
+        {/* Connection Requests Section */}
+        {pendingMatches.length > 0 && (
+          <div className="mb-8">
+             <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Connection Requests</h2>
+                <Link href="/match" className="text-xs font-black text-purple-600 uppercase tracking-widest hover:underline">Manage All →</Link>
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {pendingMatches.slice(0, 3).map((match) => (
+                   <div key={match._id} className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center justify-between group hover:shadow-xl transition-all">
+                      <div className="flex items-center gap-4">
+                         <div className="w-12 h-12 bg-gradient-to-tr from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            {match.skill.charAt(0)}
+                         </div>
+                         <div>
+                            <h4 className="text-sm font-black text-gray-900 dark:text-white mb-0.5">
+                               {match.teacher?._id === user?._id ? match.learner?.name : match.teacher?.name}
+                            </h4>
+                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-none">{match.skill}</p>
+                         </div>
+                      </div>
+                      <Link 
+                        href={`/match`}
+                        className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-gray-400 group-hover:text-purple-600 transition-colors"
+                      >
+                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                         </svg>
+                      </Link>
+                   </div>
+                ))}
+             </div>
+          </div>
+        )}
 
         {/* Quick Actions - LeetCode Style Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

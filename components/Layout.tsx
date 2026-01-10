@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import Logo from './Logo';
 import ThemeToggle from './ThemeToggle';
+import NotificationCenter from './NotificationCenter';
 import toast from 'react-hot-toast';
 import { api } from '@/lib/utils';
 
@@ -112,6 +113,9 @@ export default function Layout({ children }: LayoutProps) {
             <div className="flex items-center space-x-4">
               {/* Theme Toggle */}
               <ThemeToggle />
+
+              {/* Notifications */}
+              <NotificationCenter />
 
               {/* Tokens & Reputation */}
               <div className="hidden sm:flex items-center space-x-4">

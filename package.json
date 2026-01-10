@@ -13,6 +13,7 @@
     "@daily-co/daily-js": "^0.52.0",
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
+    "date-fns": "^4.1.0",
     "express-rate-limit": "^7.1.5",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.3",

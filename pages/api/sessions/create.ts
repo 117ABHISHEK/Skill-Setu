@@ -3,6 +3,7 @@ import dbConnect from '@/lib/db';
 import Session from '@/models/Session';
 import Match from '@/models/Match';
 import User from '@/models/User';
+import Notification from '@/models/Notification';
 import { createDailyRoom } from '@/lib/daily';
 import { authenticateToken, AuthenticatedRequest, validateInput } from '@/lib/middleware';
 import { v4 as uuidv4 } from 'uuid';
@@ -28,7 +29,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         return res.status(404).json({ error: 'Match not found' });
       }
 
-      if (match.status !== 'pending') {
+      if (match.status !== 'pending' && match.status !== 'accepted') {
         return res.status(400).json({ error: 'Match is no longer available' });
       }
 
@@ -38,34 +39,57 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
 
       // Check if session already exists
       const existingSession = await Session.findOne({
-        teacher: match.teacher,
-        learner: match.learner,
-        skill: skill,
-        status: { $in: ['scheduled', 'live'] },
+        $or: [
+          { teacher: match.teacher, learner: match.learner, skill: skill },
+          { teacher: match.learner, learner: match.teacher, skill: skill }
+        ],
+        status: { $in: ['created', 'scheduled', 'live'] },
       });
 
       if (existingSession) {
         return res.status(400).json({ error: 'Active session already exists' });
       }
 
-      // Create Daily.co room
+      // Create Jitsi/Daily room via utility
       const sessionId = `session-${uuidv4()}`;
-      const dailyRoom = await createDailyRoom(sessionId, 60); // 1 hour expiry
+      const dailyRoom = await createDailyRoom(sessionId, 120); // 2 hours expiry
 
       // Create session
       const session = await Session.create({
         sessionId,
         dailyRoomUrl: dailyRoom.url,
+        dailyRoomName: dailyRoom.name,
         teacher: match.teacher,
         learner: match.learner,
+        participants: [match.teacher, match.learner],
         skill,
         skillCategory: category,
-        status: 'scheduled',
+        status: 'created',
+        readyStatus: {
+          teacher: false,
+          learner: false,
+        },
+        tokenStatus: 'pending',
+        fraud_flagged: false,
       });
 
       // Update match status
-      match.status = 'accepted';
-      await match.save();
+      if (match.status === 'pending') {
+        match.status = 'accepted';
+        await match.save();
+      }
+
+      // Notify the other participant
+      const otherParticipantId = match.teacher.toString() === userId ? match.learner : match.teacher;
+      const currentUser = await User.findById(userId);
+      
+      await Notification.create({
+        recipient: otherParticipantId,
+        type: 'session_scheduled',
+        title: 'New Session Scheduled!',
+        message: `${currentUser?.name} has scheduled a session for ${skill}.`,
+        link: `/session/${sessionId}`,
+      });
 
       res.status(201).json({
         message: 'Session created successfully',
@@ -74,6 +98,10 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           sessionId: session.sessionId,
           dailyRoomUrl: session.dailyRoomUrl,
           status: session.status,
+          skill: session.skill,
+          teacher: session.teacher,
+          learner: session.learner,
+          readyStatus: session.readyStatus,
         },
       });
     } catch (error: any) {

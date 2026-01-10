@@ -24,7 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     await dbConnect();
-    console.log('🗄️  Connected to MongoDB');
+    console.log('🗄️ Connected to MongoDB');
 
     // Clear existing data
     console.log('🧹 Clearing existing data...');
@@ -110,6 +110,114 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         reputation: 75,
         progress_tracker: [],
       },
+      {
+        name: 'Elena Gilbert',
+        email: 'elena@example.com',
+        password: hashedPassword,
+        bio: 'Language enthusiast and dance lover.',
+        skills_known: [
+          { name: 'French', category: 'Languages', proficiency: 'expert', verified: true, xp: 500 },
+          { name: 'Salsa', category: 'Dance', proficiency: 'advanced', verified: true, xp: 400 },
+          { name: 'Creative Writing', category: 'Creative', proficiency: 'advanced', verified: true, xp: 350 },
+        ],
+        skills_learning: [
+          { name: 'Spanish', category: 'Languages', proficiency: 'beginner', verified: false, xp: 50 },
+          { name: 'Cooking', category: 'Cooking', proficiency: 'beginner', verified: false, xp: 20 },
+        ],
+        tokens: 160,
+        reputation: 82,
+        progress_tracker: [],
+      },
+      {
+        name: 'Frank Castle',
+        email: 'frank@example.com',
+        password: hashedPassword,
+        bio: 'Fitness expert and practical skills teacher.',
+        skills_known: [
+          { name: 'Fitness Training', category: 'Practical', proficiency: 'expert', verified: true, xp: 600 },
+          { name: 'Self Defense', category: 'Practical', proficiency: 'expert', verified: true, xp: 550 },
+          { name: 'Strategy', category: 'Soft Skills', proficiency: 'expert', verified: true, xp: 500 },
+        ],
+        skills_learning: [
+          { name: 'Public Speaking', category: 'Soft Skills', proficiency: 'beginner', verified: false, xp: 60 },
+          { name: 'Chess', category: 'Gaming', proficiency: 'beginner', verified: false, xp: 30 },
+        ],
+        tokens: 140,
+        reputation: 90,
+        progress_tracker: [],
+      },
+      {
+        name: 'Grace Hopper',
+        email: 'grace@example.com',
+        password: hashedPassword,
+        bio: 'Computer scientist and math lover.',
+        skills_known: [
+          { name: 'COBOL', category: 'Tech', proficiency: 'expert', verified: true, xp: 800 },
+          { name: 'Compilers', category: 'Tech', proficiency: 'expert', verified: true, xp: 750 },
+          { name: 'Mathematics', category: 'Tech', proficiency: 'expert', verified: true, xp: 700 },
+        ],
+        skills_learning: [
+          { name: 'React', category: 'Tech', proficiency: 'beginner', verified: false, xp: 50 },
+          { name: 'JavaScript', category: 'Tech', proficiency: 'beginner', verified: false, xp: 40 },
+        ],
+        tokens: 250,
+        reputation: 98,
+        progress_tracker: [],
+      },
+      {
+        name: 'Harry Potter',
+        email: 'harry@example.com',
+        password: hashedPassword,
+        bio: 'Magic and strategy enthusiast.',
+        skills_known: [
+          { name: 'Defense Against Dark Arts', category: 'Practical', proficiency: 'expert', verified: true, xp: 700 },
+          { name: 'Broomstick Flying', category: 'Practical', proficiency: 'advanced', verified: true, xp: 500 },
+          { name: 'Public Speaking', category: 'Soft Skills', proficiency: 'intermediate', verified: true, xp: 300 },
+        ],
+        skills_learning: [
+          { name: 'Mathematics', category: 'Tech', proficiency: 'beginner', verified: false, xp: 10 },
+          { name: 'Cooking', category: 'Cooking', proficiency: 'beginner', verified: false, xp: 15 },
+        ],
+        tokens: 130,
+        reputation: 88,
+        progress_tracker: [],
+      },
+      {
+        name: 'Iris West',
+        email: 'iris@example.com',
+        password: hashedPassword,
+        bio: 'Journalist and communications expert.',
+        skills_known: [
+          { name: 'Journalism', category: 'Soft Skills', proficiency: 'expert', verified: true, xp: 600 },
+          { name: 'Public Relations', category: 'Soft Skills', proficiency: 'advanced', verified: true, xp: 450 },
+          { name: 'Photography', category: 'Practical', proficiency: 'advanced', verified: true, xp: 400 },
+        ],
+        skills_learning: [
+          { name: 'Spanish', category: 'Languages', proficiency: 'beginner', verified: false, xp: 40 },
+          { name: 'Self Defense', category: 'Practical', proficiency: 'beginner', verified: false, xp: 20 },
+        ],
+        tokens: 170,
+        reputation: 86,
+        progress_tracker: [],
+      },
+      {
+        name: 'Jack Sparrow',
+        email: 'jack@example.com',
+        password: hashedPassword,
+        bio: 'Sailing and negotiation expert.',
+        skills_known: [
+          { name: 'Sailing', category: 'Practical', proficiency: 'expert', verified: true, xp: 750 },
+          { name: 'Negotiation', category: 'Soft Skills', proficiency: 'expert', verified: true, xp: 700 },
+          { name: 'Sword Fighting', category: 'Practical', proficiency: 'expert', verified: true, xp: 650 },
+        ],
+        skills_learning: [
+          { name: 'Ethics', category: 'Soft Skills', proficiency: 'beginner', verified: false, xp: 5 },
+          { name: 'French', category: 'Languages', proficiency: 'beginner', verified: false, xp: 10 },
+        ],
+        tokens: 110,
+        reputation: 70,
+        progress_tracker: [],
+      },
     ]);
 
     console.log(`✅ Created ${users.length} users`);
@@ -144,24 +252,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         queries: [],
       },
       {
-        title: 'Python for Beginners',
-        description: 'Start your Python journey with this comprehensive course. Perfect for absolute beginners.',
-        skill: 'Python',
-        skillCategory: 'Tech',
-        creator: users[1]._id,
-        price: 40,
+        title: 'Salsa for Everyone',
+        description: 'Learn the basics of Salsa dancing in this fun and interactive course.',
+        skill: 'Salsa',
+        skillCategory: 'Dance',
+        creator: users[4]._id,
+        price: 30,
         status: 'published',
         modules: [],
         enrolledUsers: [],
         queries: [],
       },
       {
-        title: 'Learn Piano in 30 Days',
-        description: 'Master piano fundamentals and play your first songs in just 30 days!',
-        skill: 'Piano',
-        skillCategory: 'Music',
-        creator: users[2]._id,
-        price: 60,
+        title: 'Mastering Negotiation',
+        description: 'The art of closing deals and winning negotiations.',
+        skill: 'Negotiation',
+        skillCategory: 'Soft Skills',
+        creator: users[9]._id,
+        price: 70,
         status: 'published',
         modules: [],
         enrolledUsers: [],
@@ -188,22 +296,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         expiresAt: expiresAt,
       },
       {
-        teacher: users[1]._id, // Bob teaches Cooking
-        learner: users[3]._id, // Diana learns Cooking
-        skill: 'Cooking',
-        skillCategory: 'Cooking',
-        matchScore: 90,
-        reason: 'Great match! Bob is an advanced cook and Diana is interested in learning.',
-        status: 'pending',
+        teacher: users[4]._id, // Elena teaches French
+        learner: users[0]._id, // Alice learns French
+        skill: 'French',
+        skillCategory: 'Languages',
+        matchScore: 95,
+        reason: 'Excellent match! Elena is a French expert and Alice is a dedicated learner.',
+        status: 'accepted',
         expiresAt: expiresAt,
       },
       {
-        teacher: users[2]._id, // Charlie teaches Piano
-        learner: users[0]._id, // Alice learns Piano
-        skill: 'Piano',
-        skillCategory: 'Music',
+        teacher: users[6]._id, // Grace teaches React (learning but expert in tech)
+        // Wait, Grace knows COBOL, Mathematics, Compilers. She is learning React.
+        // Let's make users[3] (Diana) teach React to users[1] (Bob)
+        learner: users[1]._id,
+        skill: 'React',
+        skillCategory: 'Tech',
         matchScore: 88,
-        reason: 'Excellent match! Charlie is a piano expert and Alice wants to learn.',
+        reason: 'Diana is an expert in React and Bob is a beginner.',
         status: 'accepted',
         expiresAt: expiresAt,
       },
@@ -211,12 +321,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     console.log(`✅ Created ${matches.length} matches`);
 
+    // Create sample sessions
+    console.log('🎥 Creating sample sessions...');
+    const sessions = await Session.insertMany([
+      {
+        sessionId: 'session-seed-1',
+        dailyRoomUrl: 'https://meet.jit.si/SkillSetu-session-seed-1',
+        dailyRoomName: 'SkillSetu-session-seed-1',
+        teacher: users[4]._id,
+        learner: users[0]._id,
+        participants: [users[4]._id, users[0]._id],
+        skill: 'French',
+        skillCategory: 'Languages',
+        status: 'live',
+        startTime: new Date(),
+        readyStatus: { teacher: true, learner: true }
+      },
+      {
+        sessionId: 'session-seed-2',
+        dailyRoomUrl: 'https://meet.jit.si/SkillSetu-session-seed-2',
+        dailyRoomName: 'SkillSetu-session-seed-2',
+        teacher: users[3]._id,
+        learner: users[1]._id,
+        participants: [users[3]._id, users[1]._id],
+        skill: 'React',
+        skillCategory: 'Tech',
+        status: 'completed',
+        startTime: new Date(Date.now() - 3600000),
+        endTime: new Date(),
+        readyStatus: { teacher: true, learner: true }
+      }
+    ]);
+
     res.status(200).json({
       message: 'Seed data created successfully!',
       data: {
         users: users.length,
         courses: courses.length,
         matches: matches.length,
+        sessions: sessions.length
       },
       credentials: users.map((user) => ({
         name: user.name,
