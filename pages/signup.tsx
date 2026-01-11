@@ -28,10 +28,10 @@ export default function Signup() {
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', JSON.stringify(user));
 
-      toast.success('Account created successfully! 🎉');
+      toast.success('Identity Created! ⚛️');
       router.push('/dashboard');
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Signup failed');
+      toast.error(error.response?.data?.error || 'Registration Failed');
     } finally {
       setLoading(false);
     }
@@ -40,62 +40,69 @@ export default function Signup() {
   return (
     <>
       <Head>
-        <title>Sign Up - Skill-Setu</title>
+        <title>Sign Up | Skill-Setu</title>
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg p-8 w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black p-4 relative overflow-hidden">
+        {/* Abstract Background Effects */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+
+        <div className="relative z-10 bg-white/70 dark:bg-[#0F1115]/70 backdrop-blur-2xl border border-gray-100 dark:border-white/5 rounded-[3rem] shadow-2xl p-10 lg:p-14 w-full max-w-xl transition-all">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-8 scale-110">
               <Logo size="large" />
             </div>
-            <p className="text-gray-600 dark:text-gray-300">Create your account and start learning/teaching</p>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white italic tracking-tighter uppercase mb-2">Initialize Node</h1>
+            <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.3em]">Register your unique expertise identity</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Name</label>
-              <input
-                type="text"
-                required
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="John Doe"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Public Name</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-8 py-5 bg-white dark:bg-[#050505] border-gray-100 dark:border-white/5 rounded-3xl text-sm font-black italic focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
+                  placeholder="EX: JOHN_DOE"
+                />
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Node Email</label>
+                <input
+                  type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-8 py-5 bg-white dark:bg-[#050505] border-gray-100 dark:border-white/5 rounded-3xl text-sm font-black italic focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
+                  placeholder="USER@NETWORK.COM"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
-              <input
-                type="email"
-                required
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="your@email.com"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Secure Passkey</label>
               <input
                 type="password"
                 required
                 minLength={8}
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="At least 8 characters"
+                className="w-full px-8 py-5 bg-white dark:bg-[#050505] border-gray-100 dark:border-white/5 rounded-3xl text-sm font-black italic focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
+                placeholder="MINIMUM 8 CHARS"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bio (Optional)</label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Manifesto / Bio</label>
               <textarea
                 value={formData.bio}
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="Tell us about yourself..."
+                className="w-full px-8 py-5 bg-white dark:bg-[#050505] border-gray-100 dark:border-white/5 rounded-3xl text-sm font-black italic focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white resize-none"
+                placeholder="SET YOUR MISSION STATEMENT..."
                 rows={3}
               />
             </div>
@@ -103,16 +110,16 @@ export default function Signup() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-purple-600 text-white py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-5 bg-purple-600 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.4em] hover:bg-purple-700 shadow-2xl shadow-purple-500/20 active:scale-95 transition-all disabled:opacity-50"
             >
-              {loading ? 'Creating account...' : 'Create Account'}
+              {loading ? 'INITIALIZING...' : 'CREATE IDENTITY'}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Already have an account?{' '}
-            <Link href="/login" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold">
-              Sign in
+          <p className="mt-10 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+            Node already exists?{' '}
+            <Link href="/login" className="text-purple-600 dark:text-purple-400 hover:underline">
+              Enter Key
             </Link>
           </p>
         </div>

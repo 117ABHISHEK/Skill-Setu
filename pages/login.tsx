@@ -23,10 +23,10 @@ export default function Login() {
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', JSON.stringify(user));
 
-      toast.success('Login successful! 🎉');
+      toast.success('Access Granted! 🛰️');
       router.push('/dashboard');
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Login failed');
+      toast.error(error.response?.data?.error || 'Authentication Failed');
     } finally {
       setLoading(false);
     }
@@ -35,38 +35,43 @@ export default function Login() {
   return (
     <>
       <Head>
-        <title>Login - Skill-Setu</title>
+        <title>Login | Skill-Setu</title>
       </Head>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-lg p-8 w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black p-4 relative overflow-hidden">
+        {/* Abstract Background Effects */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+
+        <div className="relative z-10 bg-white/70 dark:bg-[#0F1115]/70 backdrop-blur-2xl border border-gray-100 dark:border-white/5 rounded-[3rem] shadow-2xl p-10 lg:p-14 w-full max-w-lg transition-all">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-8 scale-110">
               <Logo size="large" />
             </div>
-            <p className="text-gray-600 dark:text-gray-300">Welcome back! Sign in to continue</p>
+            <h1 className="text-3xl font-black text-gray-900 dark:text-white italic tracking-tighter uppercase mb-2">Resume Journey</h1>
+            <p className="text-gray-400 font-bold text-[10px] uppercase tracking-[0.3em]">Credentials required for node access</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Email Address</label>
               <input
                 type="email"
                 required
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                placeholder="your@email.com"
+                className="w-full px-8 py-5 bg-white dark:bg-[#050505] border-gray-100 dark:border-white/5 rounded-3xl text-sm font-black italic focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
+                placeholder="USER@NETWORK.COM"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Password</label>
+            <div className="space-y-3">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block ml-2">Secure Password</label>
               <input
                 type="password"
                 required
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                className="w-full px-8 py-5 bg-white dark:bg-[#050505] border-gray-100 dark:border-white/5 rounded-3xl text-sm font-black italic focus:ring-4 focus:ring-purple-500/10 transition-all dark:text-white"
                 placeholder="••••••••"
               />
             </div>
@@ -74,16 +79,16 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-purple-600 text-white py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-5 bg-purple-600 text-white rounded-[2rem] font-black text-[10px] uppercase tracking-[0.4em] hover:bg-purple-700 shadow-2xl shadow-purple-500/20 active:scale-95 transition-all disabled:opacity-50"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? 'SYNCING...' : 'INITIATE LOGIN'}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            Don't have an account?{' '}
-            <Link href="/signup" className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-semibold">
-              Sign up
+          <p className="mt-10 text-center text-[10px] font-black uppercase tracking-widest text-gray-400">
+            No identity found?{' '}
+            <Link href="/signup" className="text-purple-600 dark:text-purple-400 hover:underline">
+              Register Node
             </Link>
           </p>
         </div>
