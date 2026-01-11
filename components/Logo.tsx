@@ -8,9 +8,9 @@ interface LogoProps {
 
 export default function Logo({ size = 'medium', showText = true, className = '' }: LogoProps) {
   const sizeClasses = {
-    small: 'w-6 h-6',
-    medium: 'w-10 h-10',
-    large: 'w-16 h-16',
+    small: 'h-6 w-auto',
+    medium: 'h-10 w-auto',
+    large: 'h-16 w-auto',
   };
 
   const textSizes = {
@@ -21,41 +21,12 @@ export default function Logo({ size = 'medium', showText = true, className = '' 
 
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      {/* Updated Logo Symbol - Two elegant S curves based on branding */}
-      <svg
+      {/* Use the uploaded logo image */}
+      <img 
+        src="/logo/download.png" 
+        alt="Skill-Setu Logo" 
         className={sizeClasses[size]}
-        viewBox="0 0 40 40"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Left Curve */}
-        <path
-          d="M14 10C14 10 10 14 10 20C10 26 14 30 14 30"
-          stroke="#8B1538"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        <path
-          d="M18 10C18 10 14 14 14 20C14 26 18 30 18 30"
-          stroke="#8B1538"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        
-        {/* Right Curve Pair (Reflection/Offset) */}
-        <path
-          d="M22 10C22 10 26 14 26 20C26 26 22 30 22 30"
-          stroke="#8B1538"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        <path
-          d="M26 10C26 10 30 14 30 20C30 26 26 30 26 30"
-          stroke="#8B1538"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-      </svg>
+      />
 
       {/* Modernized Logo Text */}
       {showText && (
