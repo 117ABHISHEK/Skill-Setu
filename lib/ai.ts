@@ -132,6 +132,78 @@ Return ONLY a valid JSON object with this exact structure:
   }
 }
 
+export async function generateFinalSessionAnalysis(
+  snapshots: IMonitoringSnapshot[],
+  skill: string,
+  skillCategory: string
+): Promise<any> {
+  const combinedTranscript = snapshots
+    .map((s, i) => `[Segment ${i + 1}]: ${s.transcript || 'No transcript'}`)
+    .join('\n\n');
+
+  const avgScores = {
+    engagement: snapshots.reduce((a, b) => a + b.engagement_score, 0) / snapshots.length,
+    teaching: snapshots.reduce((a, b) => a + b.teaching_score, 0) / snapshots.length,
+    participation: snapshots.reduce((a, b) => a + b.participation_score, 0) / snapshots.length,
+  };
+
+  const prompt = `You are an AI education analyzer. You have just monitored a full learning session for the skill "${skill}" within the category "${skillCategory}".
+  Below is the combined transcript of the entire session, divided into segments:
+
+  ${combinedTranscript}
+
+  Average session metrics:
+  - Engagement: ${avgScores.engagement.toFixed(1)}/100
+  - Teaching Quality: ${avgScores.teaching.toFixed(1)}/100
+  - Participation: ${avgScores.participation.toFixed(1)}/100
+
+  Review the entire session and provide a final comprehensive analysis.
+  Focus on:
+  1. A clear, concise summary of what was covered and the quality of interaction.
+  2. Key strengths demonstrated by both the teacher and learner.
+  3. Specific areas where they can improve.
+  4. Personalized next steps for the learner to solidy this knowledge.
+  5. The overall sentiment of the session (e.g., highly productive, challenging, collaborative, etc.).
+
+  Return ONLY a valid JSON object with this exact structure:
+  {
+    "summary": "<comprehensive summary string>",
+    "strengths": ["<strength 1>", "<strength 2>", ...],
+    "improvements": ["<improvement 1>", "<improvement 2>", ...],
+    "next_steps": ["<step 1>", "<step 2>", ...],
+    "overall_sentiment": "<one or two word sentiment description>"
+  }`;
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert AI education consultant providing deep insights into learning interactions.',
+        },
+        { role: 'user', content: prompt },
+      ],
+      temperature: 0.5,
+      response_format: { type: 'json_object' },
+    });
+
+    const response = completion.choices[0]?.message?.content;
+    if (!response) throw new Error('No response from AI analyzer');
+    
+    return JSON.parse(response);
+  } catch (error: any) {
+    console.error('Final AI Analysis Error:', error);
+    return {
+      summary: 'Automated final analysis was unavailable at this time. Based on session averages, the interaction appears stable.',
+      strengths: ['Consistent participation'],
+      improvements: ['Consider more in-depth Q&A'],
+      next_steps: ['Review the session transcript manually'],
+      overall_sentiment: 'Productive',
+    };
+  }
+}
+
 export async function generatePersonalizedAdvice(
   userId: string,
   userProgress: any,

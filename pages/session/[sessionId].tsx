@@ -311,11 +311,11 @@ export default function LiveSession() {
       await api.post(`/session/${sessionId}/end`);
       if (!isAutomatic) toast.success('Session ended successfully');
       if (callFrame) callFrame.dispose();
-      router.push('/dashboard');
+      router.push(`/session/${sessionId}/summary`);
     } catch (error: any) {
       if (error.response?.data?.error === 'Session already ended') {
         if (callFrame) callFrame.dispose();
-        router.push('/dashboard');
+        router.push(`/session/${sessionId}/summary`);
         return;
       }
       toast.error(error.response?.data?.error || 'Failed to end session');

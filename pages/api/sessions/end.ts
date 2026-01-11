@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import dbConnect from '@/lib/db';
 import Session from '@/models/Session';
-import User from '@/models/User';
 import { authenticateToken, AuthenticatedRequest, validateInput } from '@/lib/middleware';
+import { generateFinalSessionAnalysis } from '@/lib/ai';
 
 export default async function handler(req: AuthenticatedRequest, res: NextApiResponse) {
   return await authenticateToken(req, res, async () => {
@@ -28,7 +28,7 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         return res.status(400).json({ error: 'Session is not live' });
       }
 
-      // Calculate final scores from snapshots
+      // Calculate final scores and generate AI report from snapshots
       const snapshots = session.monitoring_snapshots;
       if (snapshots.length > 0) {
         const avgEngagement = snapshots.reduce((sum: number, s: any) => sum + s.engagement_score, 0) / snapshots.length;
@@ -38,6 +38,18 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
         session.final_engagement_score = avgEngagement;
         session.final_teaching_score = avgTeaching;
         session.final_participation_score = avgParticipation;
+
+        // NEW: Generate final comprehensive AI report
+        try {
+          const finalReport = await generateFinalSessionAnalysis(
+            snapshots,
+            session.skill,
+            session.skillCategory
+          );
+          session.final_ai_report = finalReport;
+        } catch (aiError) {
+          console.error('Failed to generate final AI report:', aiError);
+        }
       }
 
       // Calculate duration
@@ -59,6 +71,24 @@ export default async function handler(req: AuthenticatedRequest, res: NextApiRes
           learner.tokens -= tokenAmount;
           teacher.tokens += tokenAmount;
           teacher.reputation += 1;
+
+          // Update Progress Tracker for Learner
+          let progress = learner.progress_tracker.find((p: any) => p.skill === session.skill);
+          if (!progress) {
+             learner.progress_tracker.push({
+                skill: session.skill,
+                coursesCompleted: 0,
+                sessionsAttended: 1,
+                xpEarned: 10,
+                lastActive: new Date(),
+                streak: 1,
+                badges: []
+             });
+          } else {
+             progress.sessionsAttended += 1;
+             progress.xpEarned += 10;
+             progress.lastActive = new Date();
+          }
 
           await learner.save();
           await teacher.save();

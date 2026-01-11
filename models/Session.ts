@@ -66,6 +66,13 @@ export interface ISession extends Document {
   review_status?: 'pending' | 'approved' | 'rejected';
   reviewed_by?: mongoose.Types.ObjectId;
   reviewed_at?: Date;
+  final_ai_report?: {
+    summary: string;
+    strengths: string[];
+    improvements: string[];
+    next_steps: string[];
+    overall_sentiment: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -162,6 +169,13 @@ const SessionSchema = new Schema<ISession>(
     },
     reviewed_by: { type: Schema.Types.ObjectId, ref: 'User' },
     reviewed_at: Date,
+    final_ai_report: {
+      summary: String,
+      strengths: [String],
+      improvements: [String],
+      next_steps: [String],
+      overall_sentiment: String,
+    },
   },
   {
     timestamps: true,
