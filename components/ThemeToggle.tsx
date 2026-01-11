@@ -7,9 +7,9 @@ const ThemeToggle: React.FC = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+      className="p-3 bg-gray-100 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-purple-500 hover:text-white dark:hover:bg-purple-600 transition-all active:scale-90"
       aria-label="Toggle theme"
-      title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
     >
       {theme === 'dark' ? (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
