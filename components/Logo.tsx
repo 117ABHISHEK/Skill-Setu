@@ -25,14 +25,14 @@ export default function Logo({ size = 'medium', showText = true, className = '' 
       <img 
         src="/logo/download.png" 
         alt="Skill-Setu Logo" 
-        className={`${sizeClasses[size]} object-contain hover:scale-105 transition-transform`}
+        className={`${sizeClasses[size]} object-contain hover:scale-110 transition-transform duration-500 rounded-lg`}
       />
 
       {/* Modernized Logo Text */}
       {showText && (
-        <span className={`font-black uppercase italic ${textSizes[size]} text-gray-900 dark:text-white flex items-center`}>
+        <span className={`font-black uppercase italic ${textSizes[size]} text-gray-900 dark:text-white flex items-center tracking-tighter`}>
           SKILL
-          <span className="mx-2 text-purple-600">SETU</span>
+          <span className="ml-1 text-purple-600 dark:text-purple-400">SETU</span>
         </span>
       )}
     </div>
