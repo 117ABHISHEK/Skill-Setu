@@ -1,27 +1,20 @@
 import axios from 'axios';
 
-const getBaseUrl = () => {
-  if (typeof window !== 'undefined') {
-    // In the browser, use relative paths to avoid CORS issues
-    return '/api';
-  }
-  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
-  return 'http://localhost:3000/api';
-};
+export const api = axios.create();
 
-const API_URL = getBaseUrl();
-
-export const api = axios.create({
-  baseURL: API_URL,
-});
-
-// Add auth token to requests
+// Add dynamic baseURL and auth token to requests
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
+    // In the browser, always use relative paths to the current origin
+    config.baseURL = '/api';
+    
     const token = localStorage.getItem('accessToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+  } else {
+    // On the server (SSR), use the environment variable
+    config.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
   }
   return config;
 });
@@ -38,7 +31,8 @@ api.interceptors.response.use(
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post(`${API_URL}/auth/refresh`, {
+          const refreshUrl = typeof window !== 'undefined' ? '/api/auth/refresh' : `${originalRequest.baseURL}/auth/refresh`;
+          const response = await axios.post(refreshUrl, {
             refreshToken,
           });
 
