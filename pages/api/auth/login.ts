@@ -3,26 +3,11 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { comparePassword, generateAccessToken, generateRefreshToken } from '@/lib/auth';
 import { validateInput } from '@/lib/middleware';
-import rateLimit from 'express-rate-limit';
-
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 login attempts per window
-  message: 'Too many login attempts, please try again later',
-});
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
-  // Rate limiting
-  await new Promise((resolve, reject) => {
-    limiter(req as any, res as any, (result: any) => {
-      if (result instanceof Error) return reject(result);
-      resolve(result);
-    });
-  });
 
   // Validate input
   const validation = validateInput(req, res, ['email', 'password']);
@@ -46,7 +31,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
+    console.log('Attempting to connect to database for login...');
     await dbConnect();
+    console.log('Connected to database for login.');
 
     // Find user
     const user = await User.findOne({ email });
@@ -94,7 +81,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     delete userObj.password;
     delete userObj.refreshTokens;
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Login successful',
       user: userObj,
       accessToken,
@@ -102,6 +89,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (error: any) {
     console.error('Login Error:', error);
-    res.status(500).json({ error: error.message || 'Internal server error' });
+    return res.status(500).json({ error: error.message || 'Internal server error during login' });
   }
 }
