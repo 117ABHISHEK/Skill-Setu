@@ -114,7 +114,7 @@ export default function Home() {
                   <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/20 to-teal-500/20 rounded-[4rem] blur-2xl"></div>
                   <div className="relative w-full h-full rounded-[4rem] border border-white/10 overflow-hidden shadow-2xl">
                     <img 
-                      src="/skill_setu_new_hero_1768111255364.png" 
+                      src="/hero.png" 
                       alt="Knowledge Network Illustration"
                       className="w-full h-full object-cover"
                     />

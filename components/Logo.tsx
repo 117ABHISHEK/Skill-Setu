@@ -25,7 +25,7 @@ export default function Logo({ size = 'medium', showText = true, className = '' 
       <img 
         src="/logo/download.png" 
         alt="Skill-Setu Logo" 
-        className={sizeClasses[size]}
+        className={`${sizeClasses[size]} object-contain hover:scale-105 transition-transform`}
       />
 
       {/* Modernized Logo Text */}
