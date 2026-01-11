@@ -5,6 +5,7 @@ import Layout from '@/components/Layout';
 import Link from 'next/link';
 import { api } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import Loading from '@/components/Loading';
 
 interface User {
   _id: string;
@@ -53,202 +54,123 @@ export default function Dashboard() {
       } else {
         toast.error('Failed to load profile');
       }
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      // Ignore errors on logout
-    }
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    router.push('/login');
   };
 
   if (loading) {
-    return (
-      <Layout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-600">Loading...</div>
-        </div>
-      </Layout>
-    );
+    return <Loading fullScreen />;
   }
+
+  const quickActions = [
+    { name: 'Find Matches', href: '/match', icon: '🔍', color: 'purple', desc: 'Match with targeted teachers' },
+    { name: 'Live Sessions', href: '/sessions', icon: '🎥', color: 'teal', desc: 'Join active video learning' },
+    { name: 'Courses', href: '/courses', icon: '📖', color: 'indigo', desc: 'Browse curated skill paths' },
+    { name: 'Create Course', href: '/create-course', icon: '➕', color: 'blue', desc: 'Publish your own expertise' },
+    { name: 'Learning Tracker', href: '/tracker', icon: '📊', color: 'emerald', desc: 'AI-driven progress insights' },
+    { name: 'Profile', href: '/profile', icon: '👤', color: 'gray', desc: 'Manage your skill identity' },
+  ];
 
   return (
     <>
       <Head>
-        <title>Dashboard - Skill-Setu</title>
+        <title>Dashboard | Skill-Setu</title>
       </Head>
       <Layout>
-        {/* Header Section - LeetCode Style */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, <span className="text-purple-600 dark:text-purple-400">{user?.name}</span>! 👋
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your learning and teaching journey</p>
-        </div>
-
-        {/* Stats Cards - LeetCode Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Skills Learning</span>
-              <span className="text-2xl">📚</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">{user?.skills_learning.length || 0}</div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Skills Teaching</span>
-              <span className="text-2xl">🎯</span>
-            </div>
-            <div className="text-3xl font-bold text-gray-900 dark:text-white">{user?.skills_known.length || 0}</div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Tokens</span>
-              <span className="text-2xl">🪙</span>
-            </div>
-            <div className="text-3xl font-bold text-purple-600 dark:text-purple-400">{user?.tokens || 0}</div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">Reputation</span>
-              <span className="text-2xl">⭐</span>
-            </div>
-            <div className="text-3xl font-bold text-teal-600 dark:text-teal-400">{user?.reputation || 0}</div>
-          </div>
-        </div>
-
-        {/* Connection Requests Section */}
-        {pendingMatches.length > 0 && (
-          <div className="mb-8">
-             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Connection Requests</h2>
-                <Link href="/match" className="text-xs font-black text-purple-600 uppercase tracking-widest hover:underline">Manage All →</Link>
-             </div>
-             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {pendingMatches.slice(0, 3).map((match) => (
-                   <div key={match._id} className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 flex items-center justify-between group hover:shadow-xl transition-all">
-                      <div className="flex items-center gap-4">
-                         <div className="w-12 h-12 bg-gradient-to-tr from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-2xl flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
-                            {match.skill.charAt(0)}
-                         </div>
-                         <div>
-                            <h4 className="text-sm font-black text-gray-900 dark:text-white mb-0.5">
-                               {match.teacher?._id === user?._id ? match.learner?.name : match.teacher?.name}
-                            </h4>
-                            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-none">{match.skill}</p>
-                         </div>
-                      </div>
-                      <Link 
-                        href={`/match`}
-                        className="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl text-gray-400 group-hover:text-purple-600 transition-colors"
-                      >
-                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                         </svg>
-                      </Link>
+        <div className="max-w-7xl mx-auto space-y-12 pb-20">
+          {/* Hero / Welcome Section */}
+          <div className="relative overflow-hidden rounded-[3rem] bg-[#050505] p-12 lg:p-16 border border-white/5 shadow-2xl">
+             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-purple-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
+             <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-10">
+                <div className="text-center md:text-left">
+                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full mb-6 text-[10px] font-black uppercase tracking-widest text-purple-400">
+                      <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+                      Skill Passport Active
                    </div>
+                   <h1 className="text-4xl md:text-6xl font-black text-white italic tracking-tighter mb-4 leading-none">
+                      WELCOME BACK,<br/>
+                      <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-300">{user?.name?.toUpperCase()}</span>
+                   </h1>
+                   <p className="text-gray-400 font-medium max-w-sm mb-0">Your journey to mastery continues. What's the goal for today?</p>
+                </div>
+                
+                <div className="flex flex-wrap justify-center gap-4">
+                   <div className="bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-[2.5rem] text-center min-w-[140px] shadow-xl group hover:border-purple-500/30 transition-all">
+                      <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Tokens</div>
+                      <div className="text-4xl font-black text-purple-400 italic group-hover:scale-110 transition-transform">🪙 {user?.tokens || 0}</div>
+                   </div>
+                   <div className="bg-white/5 border border-white/10 backdrop-blur-xl p-8 rounded-[2.5rem] text-center min-w-[140px] shadow-xl group hover:border-teal-500/30 transition-all">
+                      <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Reputation</div>
+                      <div className="text-4xl font-black text-teal-400 italic group-hover:scale-110 transition-transform">⭐ {user?.reputation || 0}</div>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          {/* Connection Requests Section */}
+          {pendingMatches.length > 0 && (
+            <section>
+               <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4">
+                     <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Active Connections</h2>
+                     <span className="px-2 py-1 bg-red-500 text-white text-[10px] font-black rounded-lg">{pendingMatches.length}</span>
+                  </div>
+                  <Link href="/match" className="text-xs font-black text-purple-600 uppercase tracking-widest hover:underline flex items-center gap-2">View All →</Link>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pendingMatches.slice(0, 3).map((match) => (
+                    <div key={match._id} className="relative group bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all overflow-hidden">
+                       <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-purple-500/10 transition-all"></div>
+                       <div className="flex flex-col gap-6 relative z-10">
+                          <div className="flex items-center justify-between">
+                             <div className="w-14 h-14 bg-gradient-to-tr from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40 rounded-2xl flex items-center justify-center text-2xl shadow-inner group-hover:scale-110 transition-transform">
+                                {match.skill.charAt(0)}
+                             </div>
+                             <div className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-[0.2em] bg-purple-50 dark:bg-purple-900/30 px-3 py-1.5 rounded-full">Match Pending</div>
+                          </div>
+                          <div>
+                             <h4 className="text-lg font-black text-gray-900 dark:text-white italic tracking-tight mb-1">
+                                {match.teacher?._id === user?._id ? match.learner?.name : match.teacher?.name}
+                             </h4>
+                             <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{match.skill}</p>
+                          </div>
+                          <Link 
+                             href={`/match`}
+                             className="w-full py-4 text-center bg-gray-50 dark:bg-gray-700/50 rounded-2xl text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] group-hover:bg-purple-600 group-hover:text-white transition-all shadow-sm"
+                          >
+                             Respond Now →
+                          </Link>
+                       </div>
+                    </div>
+                  ))}
+               </div>
+            </section>
+          )}
+
+          {/* Quick Actions Grid */}
+          <section>
+             <div className="mb-8">
+                <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">Ecosystem Access</h2>
+                <p className="text-gray-400 font-medium text-sm mt-1">Jump into any module and start growing.</p>
+             </div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {quickActions.map((action, i) => (
+                  <Link
+                    key={i}
+                    href={action.href}
+                    className="group bg-white dark:bg-gray-800 p-10 rounded-[3rem] border border-gray-100 dark:border-gray-700 hover:shadow-2xl hover:border-purple-200 dark:hover:border-purple-900 transition-all flex flex-col items-center text-center"
+                  >
+                    <div className="w-20 h-20 mb-8 bg-gray-50 dark:bg-gray-900 rounded-[2rem] flex items-center justify-center text-4xl shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                       {action.icon}
+                    </div>
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white mb-3 italic tracking-tight uppercase leading-none">{action.name}</h3>
+                    <p className="text-xs font-medium text-gray-400 uppercase tracking-widest leading-relaxed max-w-[180px]">"{action.desc}"</p>
+                  </Link>
                 ))}
              </div>
-          </div>
-        )}
+          </section>
 
-        {/* Quick Actions - LeetCode Style Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Link
-            href="/match"
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-3xl">🔍</div>
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Find Matches</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Match with teachers and learners for skills</p>
-          </Link>
-
-          <Link
-            href="/sessions"
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-3xl">🎥</div>
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Live Sessions</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Start or join live video learning sessions</p>
-          </Link>
-
-          <Link
-            href="/courses"
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-3xl">📖</div>
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Courses</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Browse and enroll in skill courses</p>
-          </Link>
-
-          <Link
-            href="/create-course"
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-3xl">➕</div>
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Create Course</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Create and publish your own course</p>
-          </Link>
-
-          <Link
-            href="/tracker"
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-3xl">📊</div>
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Learning Tracker</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Track your progress with AI insights</p>
-          </Link>
-
-          <Link
-            href="/profile"
-            className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:border-purple-300 dark:hover:border-purple-600 hover:shadow-md transition-all group"
-          >
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-3xl">👤</div>
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">Profile</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">View and edit your skill passport</p>
-          </Link>
+          {/* Empty Space / Bottom Spacer */}
+          <div className="h-10"></div>
         </div>
       </Layout>
     </>
