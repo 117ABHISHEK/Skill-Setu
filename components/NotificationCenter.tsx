@@ -71,38 +71,41 @@ export default function NotificationCenter() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all active:scale-95"
+        className="relative p-3 bg-gray-100 dark:bg-white/5 rounded-full text-gray-600 dark:text-gray-300 hover:bg-purple-500 hover:text-white dark:hover:bg-purple-600 transition-all active:scale-95 group focus:outline-none"
       >
         <span className="text-xl">🔔</span>
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white dark:border-gray-800">
+          <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-black text-white border-2 border-white dark:border-[#050505] animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-[100] animate-in fade-in zoom-in-95 duration-200">
-          <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/50">
-            <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider">Notifications</h3>
+        <div className="absolute right-0 mt-4 w-[360px] bg-white dark:bg-[#0F1115] rounded-[2.5rem] shadow-2xl border border-gray-100 dark:border-white/5 overflow-hidden z-[100] animate-in slide-in-from-top-2 duration-300">
+          <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
+            <div className="flex items-center gap-2">
+               <h3 className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Live Feed</h3>
+               {unreadCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-purple-500 animate-ping"></span>}
+            </div>
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="text-[10px] font-bold text-purple-600 dark:text-purple-400 hover:underline uppercase"
+                className="text-[10px] font-black text-purple-600 dark:text-purple-400 hover:underline uppercase tracking-widest"
               >
-                Mark all as read
+                Clear Unread
               </button>
             )}
           </div>
 
-          <div className="max-h-[400px] overflow-y-auto">
+          <div className="max-h-[440px] overflow-y-auto custom-scrollbar">
             {notifications.length > 0 ? (
-              <div className="divide-y divide-gray-100 dark:divide-gray-700">
+              <div className="divide-y divide-gray-50 dark:divide-white/5">
                 {notifications.map((notification) => (
                   <div
                     key={notification._id}
-                    className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative ${
-                      !notification.read ? 'bg-purple-50/30 dark:bg-purple-900/10' : ''
+                    className={`p-6 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors cursor-pointer relative ${
+                      !notification.read ? 'bg-purple-50/30 dark:bg-purple-500/[0.02]' : ''
                     }`}
                     onClick={() => {
                       if (!notification.read) markAsRead(notification._id);
@@ -110,30 +113,30 @@ export default function NotificationCenter() {
                     }}
                   >
                     {!notification.read && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-600"></div>
+                      <div className="absolute left-0 top-6 bottom-6 w-1 bg-purple-600 rounded-r-full shadow-[2px_0_10px_purple]"></div>
                     )}
-                    <div className="flex gap-3">
-                      <div className="flex-shrink-0 text-xl mt-0.5">
+                    <div className="flex gap-4">
+                      <div className="flex-shrink-0 w-12 h-12 bg-gray-100 dark:bg-white/5 rounded-2xl flex items-center justify-center text-xl shadow-inner">
                         {getTypeIcon(notification.type)}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex justify-between items-start mb-0.5">
-                          <p className="text-xs font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start mb-1">
+                          <p className="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-tight truncate mr-2">
                             {notification.title}
                           </p>
-                          <span className="text-[10px] text-gray-400 font-medium">
+                          <span className="text-[9px] text-gray-400 font-black uppercase tracking-widest whitespace-nowrap">
                              {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                           </span>
                         </div>
-                        <p className="text-[11px] text-gray-600 dark:text-gray-400 leading-relaxed font-medium">
-                          {notification.message}
+                        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed font-medium line-clamp-2 italic">
+                          "{notification.message}"
                         </p>
                         {notification.link && (
                           <Link
                             href={notification.link}
-                            className="inline-block mt-2 text-[10px] font-black text-purple-600 dark:text-purple-400 hover:underline uppercase tracking-widest"
+                            className="inline-flex items-center mt-3 text-[9px] font-black text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 uppercase tracking-[0.2em]"
                           >
-                            View Details →
+                            Execute Action →
                           </Link>
                         )}
                       </div>
@@ -142,18 +145,18 @@ export default function NotificationCenter() {
                 ))}
               </div>
             ) : (
-              <div className="p-12 text-center">
-                <div className="text-4xl mb-4 grayscale opacity-50">📭</div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest leading-loose">
-                  No notifications yet.<br/>You're all caught up!
-                </p>
+              <div className="p-20 text-center">
+                <div className="text-5xl mb-6 grayscale opacity-20">📡</div>
+                <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest leading-loose">
+                  Frequency Clear<br/>No Signal Detected
+                </h4>
               </div>
             )}
           </div>
 
-          <div className="p-3 border-t border-gray-100 dark:border-gray-700 text-center bg-gray-50/30 dark:bg-gray-700/30">
-             <Link href="/notifications" className="text-[10px] font-black text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 uppercase tracking-widest">
-                See all notifications
+          <div className="p-4 border-t border-gray-100 dark:border-white/5 text-center bg-gray-50/30 dark:bg-white/[0.01]">
+             <Link href="/notifications" className="text-[10px] font-black text-gray-400 dark:text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 uppercase tracking-[0.3em] transition-colors">
+                Open Full Log Center
              </Link>
           </div>
         </div>

@@ -29,8 +29,9 @@ export default function Match() {
 
   const fetchPendingMatches = async () => {
     try {
-      const response = await api.get('/skills/match');
-      setPendingMatches(response.data.matches || []);
+      const response = await api.get('/notifications'); // Notifications already contains counts
+      const res = await api.get('/skills/match');
+      setPendingMatches(res.data.matches || []);
     } catch (error: any) {
       console.error('Failed to fetch pending matches');
     }
@@ -57,7 +58,7 @@ export default function Match() {
       const response = await api.post('/skills/match', { skill, category });
       setMatches(response.data.matches || []);
       if (response.data.matches.length === 0) {
-        toast('No matches found for this skill', { icon: 'ℹ️' });
+        toast('No matches found for this skill', { icon: '🔭' });
       }
     } catch (error: any) {
       toast.error(error.response?.data?.error || 'Failed to find matches');
@@ -73,191 +74,178 @@ export default function Match() {
         skill: skillName,
         category: skillCategory,
       });
-      toast.success('Session created! 🎉');
+      toast.success('Session Synchronized! 🎥');
       router.push(`/session/${response.data.session.sessionId}`);
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Failed to create session');
+      toast.error(error.response?.data?.error || 'Failed to initiate session');
     }
   };
 
   return (
     <>
       <Head>
-        <title>Find Matches - Skill-Setu</title>
+        <title>Match | Skill-Setu</title>
       </Head>
       <Layout>
-        <div className="max-w-6xl mx-auto py-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div className="max-w-7xl mx-auto py-8 lg:py-12 pb-32 space-y-16 page-transition">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-10">
             <div>
-              <h1 className="text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">
-                Discover Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-teal-500">Perfect Match</span>
-              </h1>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">Connect with experts who want to share what you want to learn.</p>
+               <h1 className="text-4xl md:text-6xl font-black text-gray-900 dark:text-white italic tracking-tighter uppercase mb-3">
+                 Target <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-500">Expertise</span>
+               </h1>
+               <p className="text-gray-400 font-bold text-xs uppercase tracking-[0.3em]">Quantum matching between nodes of knowledge</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="px-4 py-2 bg-purple-50 dark:bg-purple-900/20 rounded-2xl border border-purple-100 dark:border-purple-800">
-                <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">Active Learners</span>
-                <div className="text-2xl font-black text-gray-900 dark:text-white">1,280</div>
+            
+            <div className="hidden md:flex items-center gap-4">
+              <div className="p-6 bg-white dark:bg-[#0F1115] rounded-3xl border border-gray-100 dark:border-white/5 shadow-xl">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Active Nodes</span>
+                <div className="text-2xl font-black text-purple-600 dark:text-purple-400 italic">1,280+</div>
               </div>
             </div>
           </div>
 
-          {/* Search Bar - Premium Style */}
-          <div className="relative mb-12">
-            <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4 p-2 bg-white dark:bg-gray-800 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-700">
-              <div className="flex-1 relative">
-                 <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl">🔍</span>
-                 <input
-                  type="text"
-                  value={skill}
-                  onChange={(e) => setSkill(e.target.value)}
-                  placeholder="What do you want to master today? (e.g. JavaScript, Guitar)"
-                  className="w-full pl-14 pr-6 py-5 bg-transparent border-none focus:outline-none dark:text-white font-medium text-lg placeholder:text-gray-400"
-                />
-              </div>
-              <div className="h-10 w-[1px] bg-gray-200 dark:bg-gray-700 hidden md:block self-center"></div>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="px-6 py-5 bg-transparent border-none focus:outline-none dark:text-white font-bold text-gray-700 appearance-none cursor-pointer"
-              >
-                {['Tech', 'Creative', 'Music', 'Cooking', 'Languages', 'Soft Skills', 'Practical'].map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                disabled={loading}
-                className="px-10 py-5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-[1.5rem] font-black hover:shadow-lg hover:shadow-purple-500/30 transition-all active:scale-95 disabled:opacity-50"
-              >
-                {loading ? '...' : 'FIND EXPERTS'}
-              </button>
+          {/* Search Bar - Premium UI */}
+          <div className="max-w-4xl mx-auto">
+            <form onSubmit={handleSearch} className="relative group">
+               <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+               <div className="relative flex flex-col md:flex-row gap-4 p-3 bg-white dark:bg-[#0F1115] rounded-[2.5rem] border border-gray-100 dark:border-white/5 shadow-2xl">
+                 <div className="flex-1 relative">
+                    <span className="absolute left-8 top-1/2 -translate-y-1/2 text-2xl group-focus-within:scale-110 transition-transform">🔍</span>
+                    <input
+                     type="text"
+                     value={skill}
+                     onChange={(e) => setSkill(e.target.value)}
+                     placeholder="What do you want to master today?"
+                     className="w-full pl-20 pr-8 py-6 bg-transparent border-none focus:outline-none dark:text-white font-black italic text-lg placeholder:text-gray-400 tracking-tight"
+                   />
+                 </div>
+                 <div className="h-10 w-[1px] bg-gray-100 dark:bg-white/5 hidden md:block self-center"></div>
+                 <select
+                   value={category}
+                   onChange={(e) => setCategory(e.target.value)}
+                   className="px-8 py-6 bg-transparent border-none focus:outline-none dark:text-white font-black uppercase tracking-widest text-xs cursor-pointer"
+                 >
+                   {['Tech', 'Creative', 'Music', 'Cooking', 'Languages', 'Soft Skills'].map(cat => (
+                     <option key={cat} value={cat}>{cat}</option>
+                   ))}
+                 </select>
+                 <button
+                   type="submit"
+                   disabled={loading}
+                   className="px-12 py-6 bg-purple-600 text-white rounded-[1.8rem] font-black tracking-[0.2em] uppercase text-[10px] hover:bg-purple-700 shadow-xl shadow-purple-500/20 active:scale-95 transition-all text-center"
+                 >
+                   {loading ? 'SCALING...' : 'SCAN NETWORK'}
+                 </button>
+               </div>
             </form>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* Main Content Area */}
-            <div className="lg:col-span-8">
-              <div className="mb-8 flex items-center justify-between">
-                 <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
-                    {skill ? `Matches for "${skill}"` : 'AI Recommendations'}
-                 </h2>
-                 <div className="flex gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Real-time matching active</span>
+            {/* Matches List */}
+            <div className="lg:col-span-8 space-y-8">
+               <div className="flex items-center gap-4 px-4">
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter leading-none">
+                     {skill ? `Potential Hits for "${skill}"` : 'AI Predictive Matches'}
+                  </h2>
+               </div>
+
+               {loading && matches.length === 0 ? (
+                 <Loading message="Triangulating expertise..." />
+               ) : matches.length > 0 ? (
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   {matches.map((match, index) => (
+                     <div key={index} className="group relative bg-white dark:bg-[#0F1115] rounded-[3rem] border border-gray-100 dark:border-white/5 p-10 hover:shadow-3xl transition-all hover:-translate-y-2 overflow-hidden flex flex-col">
+                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                           <span className="text-9xl">💎</span>
+                        </div>
+                        
+                        <div className="flex-1 relative z-10">
+                           <div className="flex flex-col gap-6 mb-8">
+                             <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-3xl flex items-center justify-center text-3xl shadow-inner group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                                {match.user.name.charAt(0)}
+                             </div>
+                             <div>
+                                <h3 className="text-2xl font-black text-gray-900 dark:text-white italic uppercase tracking-tighter leading-none mb-1">{match.user.name}</h3>
+                                <div className="flex items-center gap-3">
+                                   <span className="text-teal-500 text-[10px] font-black uppercase tracking-widest">★ {match.user.reputation} Trust</span>
+                                   <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                   <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest">Match Score: {match.match_score}%</span>
+                                </div>
+                             </div>
+                           </div>
+
+                           <p className="text-sm text-gray-600 dark:text-gray-400 italic font-medium leading-[1.6] mb-10 opacity-80">
+                             "{match.reason}"
+                           </p>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            toast.success('Signal Transmitted!');
+                            fetchPendingMatches();
+                          }}
+                          className="w-full py-5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-[1.8rem] font-black text-[10px] uppercase tracking-[0.3em] hover:bg-purple-600 dark:hover:bg-purple-500 dark:hover:text-white transition-all shadow-xl mt-auto"
+                        >
+                          Send Request →
+                        </button>
+                     </div>
+                   ))}
                  </div>
-              </div>
-
-              {loading && matches.length === 0 ? (
-                <Loading message="Finding experts..." />
-              ) : matches.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {matches.map((match, index) => (
-                    <div key={index} className="group relative bg-white dark:bg-gray-800 rounded-[2.5rem] border border-gray-100 dark:border-gray-700 p-8 hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 overflow-hidden">
-                       <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
-                          <span className="text-8xl">💎</span>
-                       </div>
-                       
-                       <div className="relative z-10">
-                          <div className="flex justify-between items-start mb-6">
-                            <div className="w-16 h-16 bg-gradient-to-tr from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                               {match.user.name.charAt(0)}
-                            </div>
-                            <div className="text-right">
-                               <div className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-1">Match Score</div>
-                               <div className="text-3xl font-black text-gray-900 dark:text-white">{match.match_score}%</div>
-                            </div>
-                          </div>
-
-                          <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">{match.user.name}</h3>
-                          <div className="flex items-center gap-2 mb-4">
-                             <span className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-[10px] font-bold text-gray-500 uppercase tracking-widest">{match.user.skills_known[0]?.name || 'Expert'}</span>
-                             <span className="text-teal-500 text-xs font-bold">★ {match.user.reputation} Reputation</span>
-                          </div>
-
-                          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-8 font-medium italic leading-relaxed">
-                            "{match.reason}"
-                          </p>
-
-                          <button
-                            onClick={() => {
-                              toast.success('Match request sent!');
-                              fetchPendingMatches();
-                            }}
-                            className="w-full py-4 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-purple-600 dark:hover:bg-purple-500 dark:hover:text-white transition-all active:scale-95"
-                          >
-                            REQUEST TO CONNECT
-                          </button>
-                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-20 text-center bg-gray-50 dark:bg-gray-800/50 rounded-[3rem] border border-dashed border-gray-200 dark:border-gray-700">
-                  <span className="text-6xl mb-6 block">🔭</span>
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">No matches found yet</h3>
-                  <p className="text-gray-500 max-w-xs mx-auto text-sm">Update your learning list or try searching for a broader skill.</p>
-                </div>
-              )}
+               ) : (
+                 <div className="p-24 text-center bg-gray-50/50 dark:bg-white/[0.02] rounded-[4rem] border border-dashed border-gray-200 dark:border-white/5">
+                   <span className="text-8xl mb-10 block grayscale opacity-20 animate-float">🔭</span>
+                   <h3 className="text-2xl font-black text-gray-900 dark:text-white italic uppercase tracking-tighter mb-2">Zero Matches Detected</h3>
+                   <p className="text-gray-400 font-bold text-xs uppercase tracking-[0.3em] max-w-[280px] mx-auto italic opacity-70">Expand your search parameters or update your node bio.</p>
+                 </div>
+               )}
             </div>
 
-            {/* Sidebar with Pending Matches */}
-            <div className="lg:col-span-4">
-               <div className="sticky top-24">
-                  <div className="mb-8 flex items-center gap-3">
-                     <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Connection Requests</h2>
-                     <span className="flex h-5 w-5 items-center justify-center rounded-full bg-purple-600 text-[10px] font-bold text-white">
-                        {pendingMatches.length}
-                     </span>
+            {/* Action Sidebar */}
+            <div className="lg:col-span-4 space-y-8">
+               <div className="sticky top-32 space-y-8">
+                  <div className="flex items-center justify-between px-4">
+                     <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase italic tracking-tighter">Queue</h2>
+                     <span className="px-3 py-1 bg-purple-600 text-white text-[10px] font-black rounded-lg">{pendingMatches.length}</span>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {pendingMatches.map((match) => (
-                      <div key={match._id} className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 p-6 shadow-sm hover:shadow-xl transition-all">
-                        <div className="flex items-center gap-4 mb-4">
-                           <div className="w-10 h-10 bg-teal-100 dark:bg-teal-900/30 rounded-xl flex items-center justify-center text-teal-600 font-bold">
+                      <div key={match._id} className="bg-white dark:bg-[#0F1115] rounded-[2.5rem] border border-gray-100 dark:border-white/5 p-8 shadow-xl hover:shadow-2xl transition-all">
+                        <div className="flex items-center gap-5 mb-8">
+                           <div className="w-14 h-14 bg-teal-500/10 rounded-2xl flex items-center justify-center text-teal-500 font-black italic shadow-inner">
                               {match.skill.charAt(0)}
                            </div>
                            <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-black text-gray-900 dark:text-white truncate">
-                                {(() => {
-                                  try {
-                                    const userStr = localStorage.getItem('user');
-                                    if (!userStr) return match.teacher?.name || match.learner?.name;
-                                    const user = JSON.parse(userStr);
-                                    const currentUserId = user?._id || '';
-                                    const isLearner = match.learner?._id === currentUserId || match.learner?.toString() === currentUserId;
-                                    return isLearner ? match.teacher?.name : match.learner?.name;
-                                  } catch { return 'User'; }
-                                })()}
+                              <h4 className="text-lg font-black text-gray-900 dark:text-white truncate italic uppercase tracking-tighter">
+                                {match.teacher?.name || match.learner?.name || 'Protocol User'}
                               </h4>
-                              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{match.skill}</p>
+                              <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{match.skill}</p>
                            </div>
-                           <div className="text-xs font-black text-purple-600">{match.matchScore}%</div>
                         </div>
                         <button
                           onClick={() => handleCreateSession(match._id, match.skill, match.skillCategory)}
-                          className="w-full py-3 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-purple-600 hover:text-white transition-all"
+                          className="w-full py-4 bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] hover:bg-purple-600 hover:text-white transition-all"
                         >
-                          Schedule Session
+                          Sync Now
                         </button>
                       </div>
                     ))}
                     {pendingMatches.length === 0 && (
-                      <div className="p-8 text-center bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700">
-                         <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest leading-loose">
-                            Waiting for your first connection...<br/>Start a search to get noticed!
+                      <div className="p-12 text-center bg-white dark:bg-white/[0.01] rounded-[3rem] border border-gray-100 dark:border-white/10 opacity-60">
+                         <p className="text-[9px] text-gray-400 font-black uppercase tracking-[0.2em] leading-loose">
+                            Queue Empty<br/>Awaiting Inbound Requests
                          </p>
                       </div>
                     )}
                   </div>
 
-                  <div className="mt-8 p-6 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl text-white shadow-2xl relative overflow-hidden">
-                     <div className="absolute -bottom-4 -right-4 text-7xl opacity-20 rotate-12">🎖️</div>
+                  <div className="p-10 bg-gradient-to-br from-indigo-700 to-purple-800 rounded-[3rem] text-white shadow-3xl relative overflow-hidden group">
+                     <div className="absolute -bottom-10 -right-10 text-[10rem] opacity-10 rotate-12 group-hover:rotate-0 transition-transform duration-700">🎖️</div>
                      <div className="relative z-10">
-                        <h4 className="text-sm font-black uppercase tracking-widest mb-2">Pro Tip</h4>
-                        <p className="text-xs font-medium leading-relaxed opacity-90 mb-4">Users with a clear bio and verified skills are 3x more likely to be matched!</p>
-                        <button onClick={() => router.push('/profile')} className="text-[10px] font-black uppercase tracking-tighter underline">Complete Profile →</button>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.4em] mb-4 opacity-70">Protocol Tip</h4>
+                        <p className="text-sm font-black italic leading-relaxed mb-8 opacity-90 tracking-tight">"High reputation nodes attract 3x more targeted matches."</p>
+                        <button onClick={() => router.push('/profile')} className="text-[9px] font-black uppercase tracking-[0.4em] py-3 px-6 bg-white/10 hover:bg-white/20 border border-white/10 rounded-full transition-all">Refine Identity</button>
                      </div>
                   </div>
                </div>

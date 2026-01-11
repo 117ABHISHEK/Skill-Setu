@@ -21,8 +21,6 @@ export default function Layout({ children }: LayoutProps) {
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
-       // If we're on public pages, don't redirect (but Layout is usually for protected pages)
-       // However, to be safe, we check if it's one of the auth pages
        if (router.pathname !== '/login' && router.pathname !== '/signup' && router.pathname !== '/') {
           router.push('/login');
           return;
@@ -44,7 +42,6 @@ export default function Layout({ children }: LayoutProps) {
       localStorage.setItem('user', JSON.stringify(response.data.user));
     } catch (error: any) {
       if (error.response?.status === 401 || error.response?.status === 403) {
-        // Only redirect if we're not already on an auth page
         if (router.pathname !== '/login' && router.pathname !== '/signup' && router.pathname !== '/') {
            localStorage.removeItem('accessToken');
            localStorage.removeItem('refreshToken');
@@ -60,7 +57,6 @@ export default function Layout({ children }: LayoutProps) {
     try {
       await api.post('/auth/logout');
     } catch (error) {
-      // Ignore errors
     }
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
@@ -82,9 +78,9 @@ export default function Layout({ children }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#050505] transition-colors selection:bg-purple-500/30 selection:text-purple-200">
+    <div className="min-h-screen bg-[rgb(var(--bg-primary))] transition-colors selection:bg-purple-500/30 selection:text-purple-200">
       {/* Premium Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#050505]/80 backdrop-blur-xl border-b border-gray-100 dark:border-white/5 h-20 flex items-center">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-nav h-20 flex items-center">
         <div className="max-w-7xl mx-auto px-6 w-full">
           <div className="flex items-center justify-between">
             {/* Left: Logo */}
@@ -102,7 +98,7 @@ export default function Layout({ children }: LayoutProps) {
                        className={`px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-full ${
                           router.pathname === item.href 
                              ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20' 
-                             : 'text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                             : 'text-[rgb(var(--text-secondary))] hover:text-[rgb(var(--text-primary))]'
                        }`}
                     >
                        {item.name}
@@ -113,7 +109,7 @@ export default function Layout({ children }: LayoutProps) {
 
             {/* Right side tools */}
             <div className="flex items-center gap-4">
-               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 dark:bg-purple-500/5 border border-purple-500/20 rounded-full">
+               <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-purple-500/10 dark:bg-white/5 border border-purple-500/20 dark:border-white/5 rounded-full">
                   <span className="text-purple-600 dark:text-purple-400 text-[10px] font-black uppercase tracking-widest">🪙 {user?.tokens || 0}</span>
                </div>
                
@@ -121,46 +117,45 @@ export default function Layout({ children }: LayoutProps) {
                <ThemeToggle />
 
                {/* User Profile Trigger */}
-               <div className="relative group ml-2">
-                  <button className="flex items-center gap-3 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all">
+               <div className="relative group ml-1">
+                  <button className="flex items-center gap-3 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 transition-all focus:outline-none">
                      <div className="w-10 h-10 bg-gradient-to-tr from-purple-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-black text-sm shadow-lg group-hover:scale-110 transition-transform">
                         {user?.name?.charAt(0).toUpperCase() || 'U'}
                      </div>
-                     <span className="hidden xl:block text-xs font-black uppercase tracking-widest text-gray-900 dark:text-white mr-2">
+                     <span className="hidden xl:block text-[10px] font-black uppercase tracking-widest text-[rgb(var(--text-primary))] mr-1">
                         {user?.name || 'Explorer'}
                      </span>
                   </button>
 
-                  {/* Dropdown Menu */}
-                  <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-50 overflow-hidden">
-                     <div className="p-3 space-y-1">
-                        <Link 
-                           href="/profile" 
-                           className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
-                        >
-                           👤 Profile IDENTITY
-                        </Link>
-                        <Link 
-                           href="/tracker" 
-                           className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
-                        >
-                           📈 Progress DIAGNOSTIC
-                        </Link>
-                        <div className="h-[1px] bg-gray-100 dark:bg-gray-700 mx-2 my-2"></div>
-                        <button 
-                           onClick={handleLogout}
-                           className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl transition-all"
-                        >
-                           🚪 TERMINATE SESSION
-                        </button>
-                     </div>
+                  <div className="absolute right-0 mt-3 w-60 bg-[rgb(var(--bg-secondary))] rounded-[2rem] shadow-3xl border border-[rgb(var(--border))] dark:border-white/5 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-50 overflow-hidden p-3">
+                    <div className="space-y-1">
+                      <Link 
+                         href="/profile" 
+                         className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[rgb(var(--text-secondary))] hover:text-[rgb(var(--text-primary))] hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
+                      >
+                         👤 Profile Identity
+                      </Link>
+                      <Link 
+                         href="/tracker" 
+                         className="flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-[rgb(var(--text-secondary))] hover:text-[rgb(var(--text-primary))] hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all"
+                      >
+                         📈 Progress Diagnostic
+                      </Link>
+                      <div className="h-[1px] bg-[rgb(var(--border))] dark:bg-white/5 mx-2 my-2"></div>
+                      <button 
+                         onClick={handleLogout}
+                         className="w-full flex items-center gap-3 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl transition-all"
+                      >
+                         🚪 Terminate Node
+                      </button>
+                    </div>
                   </div>
                </div>
 
                {/* Mobile Toggle */}
                <button 
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="lg:hidden p-3 bg-gray-100 dark:bg-white/5 rounded-full hover:bg-purple-500 hover:text-white transition-all"
+                  className="lg:hidden p-3 bg-gray-100 dark:bg-white/5 rounded-full hover:bg-purple-500 hover:text-white transition-all shadow-inner"
                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -174,7 +169,7 @@ export default function Layout({ children }: LayoutProps) {
       {/* Mobile Drawer */}
       {sidebarOpen && (
          <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm lg:hidden transition-opacity" onClick={() => setSidebarOpen(false)}>
-            <div className="fixed inset-y-0 left-0 w-80 bg-white dark:bg-gray-900 shadow-2xl p-8" onClick={e => e.stopPropagation()}>
+            <div className="fixed inset-y-0 left-0 w-80 bg-[rgb(var(--bg-secondary))] shadow-3xl p-8" onClick={e => e.stopPropagation()}>
                <div className="flex items-center justify-between mb-12">
                   <Logo size="medium" />
                   <button onClick={() => setSidebarOpen(false)} className="p-3 bg-gray-100 dark:bg-white/5 rounded-full">
@@ -189,10 +184,10 @@ export default function Layout({ children }: LayoutProps) {
                         key={item.name}
                         href={item.href}
                         onClick={() => setSidebarOpen(false)}
-                        className={`flex items-center gap-4 p-5 rounded-[2rem] text-sm font-black uppercase tracking-widest transition-all ${
+                        className={`flex items-center gap-5 p-5 rounded-[2rem] text-xs font-black uppercase tracking-widest transition-all ${
                            router.pathname === item.href 
-                              ? 'bg-purple-600 text-white shadow-xl shadow-purple-500/30' 
-                              : 'text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
+                              ? 'bg-purple-600 text-white shadow-2xl shadow-purple-500/30' 
+                              : 'text-[rgb(var(--text-secondary))] hover:bg-gray-50 dark:hover:bg-white/5'
                         }`}
                      >
                         <span className="text-xl">{item.icon}</span>
@@ -205,7 +200,7 @@ export default function Layout({ children }: LayoutProps) {
       )}
 
       {/* Main Page Content Wrapper */}
-      <main className="pt-32 min-h-screen px-6 sm:px-10 lg:px-12">
+      <main className="pt-32 min-h-screen px-6 sm:px-10 lg:px-12 max-w-7xl mx-auto">
          {children}
       </main>
     </div>
