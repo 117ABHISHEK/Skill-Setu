@@ -9,57 +9,59 @@ interface LogoProps {
 export default function Logo({ size = 'medium', showText = true, className = '' }: LogoProps) {
   const sizeClasses = {
     small: 'w-6 h-6',
-    medium: 'w-8 h-8',
-    large: 'w-12 h-12',
+    medium: 'w-10 h-10',
+    large: 'w-16 h-16',
   };
 
   const textSizes = {
-    small: 'text-lg',
-    medium: 'text-xl',
-    large: 'text-2xl',
+    small: 'text-sm tracking-[0.2em]',
+    medium: 'text-xl tracking-[0.1em]',
+    large: 'text-3xl tracking-[0.15em]',
   };
 
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      {/* Logo Symbol - Three overlapping S shapes */}
+    <div className={`flex items-center gap-3 ${className}`}>
+      {/* Updated Logo Symbol - Two elegant S curves based on branding */}
       <svg
         className={sizeClasses[size]}
         viewBox="0 0 40 40"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
-        {/* Left S */}
+        {/* Left Curve */}
         <path
-          d="M8 5 C8 8, 8 12, 10 15 C12 18, 14 20, 12 22 C10 24, 8 26, 10 28 C12 30, 14 32, 18 32 C22 32, 24 30, 26 28"
+          d="M14 10C14 10 10 14 10 20C10 26 14 30 14 30"
           stroke="#8B1538"
-          strokeWidth="2.5"
+          strokeWidth="3"
           strokeLinecap="round"
-          fill="none"
-          opacity="0.8"
         />
-        {/* Middle S */}
         <path
-          d="M12 5 C12 8, 12 12, 14 15 C16 18, 18 20, 16 22 C14 24, 12 26, 14 28 C16 30, 18 32, 22 32 C26 32, 28 30, 30 28"
+          d="M18 10C18 10 14 14 14 20C14 26 18 30 18 30"
           stroke="#8B1538"
-          strokeWidth="2.5"
+          strokeWidth="3"
           strokeLinecap="round"
-          fill="none"
-          opacity="0.9"
         />
-        {/* Right S */}
+        
+        {/* Right Curve Pair (Reflection/Offset) */}
         <path
-          d="M16 5 C16 8, 16 12, 18 15 C20 18, 22 20, 20 22 C18 24, 16 26, 18 28 C20 30, 22 32, 26 32 C30 32, 32 30, 34 28"
+          d="M22 10C22 10 26 14 26 20C26 26 22 30 22 30"
           stroke="#8B1538"
-          strokeWidth="2.5"
+          strokeWidth="3"
           strokeLinecap="round"
-          fill="none"
+        />
+        <path
+          d="M26 10C26 10 30 14 30 20C30 26 26 30 26 30"
+          stroke="#8B1538"
+          strokeWidth="3"
+          strokeLinecap="round"
         />
       </svg>
 
-      {/* Logo Text */}
+      {/* Modernized Logo Text */}
       {showText && (
-        <span className={`font-semibold text-gray-900 ${textSizes[size]}`}>
-          SKILL <span className="text-gray-600">SETU</span>
+        <span className={`font-black uppercase italic ${textSizes[size]} text-gray-900 dark:text-white flex items-center`}>
+          SKILL
+          <span className="mx-2 text-purple-600">SETU</span>
         </span>
       )}
     </div>
